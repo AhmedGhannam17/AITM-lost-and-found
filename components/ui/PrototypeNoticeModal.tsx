@@ -1,34 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-const LOCAL_STORAGE_KEY = "aitm_prototype_notice_dismissed";
+import { useState } from "react";
 
 /**
- * Modal that appears on first visit to explain prototype limitations.
- * Uses localStorage so it only displays once per browser.
+ * Modal that appears on each visit to explain prototype limitations.
  */
 export function PrototypeNoticeModal() {
   const [isOpen, setIsOpen] = useState(true);
 
-  useEffect(() => {
-    try {
-      const dismissed = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (dismissed === "true") {
-        setIsOpen(false);
-      }
-    } catch {
-      // In case localStorage is blocked/restricted
-      setIsOpen(true);
-    }
-  }, []);
-
   function handleDismiss() {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, "true");
-    } catch {
-      // Ignore storage errors
-    }
     setIsOpen(false);
   }
 
