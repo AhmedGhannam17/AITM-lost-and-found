@@ -4,31 +4,35 @@
  */
 export function ItemCardSkeleton() {
   return (
-    <div className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden animate-pulse">
+    <div className="flex flex-col rounded-2xl border border-gray-200/80 bg-white shadow-xs overflow-hidden animate-pulse">
       {/* Photo placeholder */}
-      <div className="h-44 w-full bg-gray-200" />
+      <div className="h-48 w-full bg-gray-200" />
 
       {/* Content placeholder */}
-      <div className="flex flex-col gap-3 p-4">
-        {/* Badges */}
-        <div className="flex gap-2">
-          <div className="h-5 w-14 rounded-full bg-gray-200" />
-          <div className="h-5 w-12 rounded-full bg-gray-200" />
+      <div className="flex flex-col gap-3.5 p-5">
+        {/* Title placeholder */}
+        <div className="h-5 w-3/4 rounded-md bg-gray-200" />
+
+        {/* Snippet placeholder */}
+        <div className="flex flex-col gap-1.5">
+          <div className="h-3 w-full rounded bg-gray-100" />
+          <div className="h-3 w-4/5 rounded bg-gray-100" />
         </div>
 
-        {/* Title */}
-        <div className="h-4 w-3/4 rounded bg-gray-200" />
-
-        {/* Meta lines */}
-        <div className="flex flex-col gap-1.5 mt-1">
-          <div className="h-3 w-2/3 rounded bg-gray-100" />
-          <div className="h-3 w-1/2 rounded bg-gray-100" />
-          <div className="h-3 w-2/5 rounded bg-gray-100" />
+        {/* Meta section placeholder */}
+        <div className="mt-auto flex flex-col gap-2 pt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between">
+            <div className="h-3.5 w-20 rounded bg-gray-200" />
+            <div className="h-4 w-12 rounded-full bg-gray-200" />
+          </div>
+          <div className="h-3.5 w-3/4 rounded bg-gray-100" />
+          <div className="h-3.5 w-1/2 rounded bg-gray-100" />
         </div>
 
-        {/* Button */}
-        <div className="mt-3 h-8 w-full rounded-lg bg-gray-200" />
+        {/* Button placeholder */}
+        <div className="mt-1 h-9 w-full rounded-xl bg-gray-200" />
       </div>
     </div>
   );
 }
+

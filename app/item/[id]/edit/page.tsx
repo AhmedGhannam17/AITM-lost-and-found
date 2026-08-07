@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { fetchItemById } from "@/utils/itemService";
@@ -37,8 +38,11 @@ export default async function ItemEditPage({ params }: PageProps) {
           backHref={`/item/${item.id}`}
           backLabel="Back to Item Details"
         />
-        <ReportForm initialItem={item} mode="edit" />
+        <Suspense fallback={<div className="h-96 rounded-2xl bg-white animate-pulse" />}>
+          <ReportForm initialItem={item} mode="edit" />
+        </Suspense>
       </div>
     </main>
   );
 }
+

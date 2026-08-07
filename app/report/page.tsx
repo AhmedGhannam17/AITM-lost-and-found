@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ReportForm } from "@/components/forms/ReportForm";
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 /**
  * /report — route page.
- * Intentionally thin: delegates all UI to ReportForm and PageHeader.
+ * Wraps ReportForm in Suspense for searchParams client preselection.
  */
 export default function ReportPage() {
   return (
@@ -22,8 +23,11 @@ export default function ReportPage() {
           backHref="/"
           backLabel="Back to Home"
         />
-        <ReportForm />
+        <Suspense fallback={<div className="h-96 rounded-2xl bg-white animate-pulse" />}>
+          <ReportForm />
+        </Suspense>
       </div>
     </main>
   );
 }
+

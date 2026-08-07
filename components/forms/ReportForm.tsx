@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { CATEGORIES } from "@/constants/categories";
 import { CAMPUS_AREAS } from "@/constants/campusAreas";
@@ -77,13 +77,17 @@ interface ReportFormProps {
 
 /**
  * Reusable report form — handles validation, image upload, DB insert/update,
- * success toast, and redirect. Supports both create and edit modes.
+ * success toast, and redirect. Supports preselected type via URL parameter.
  */
 export function ReportForm({
   initialItem,
   mode = initialItem ? "edit" : "create",
 }: ReportFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryType = searchParams.get("type");
+  const defaultType = queryType === "Lost" || queryType === "Found" ? queryType : "";
+
   const isEdit = mode === "edit";
 
   const [values, setValues] = useState<FormValues>(() => {
@@ -100,7 +104,10 @@ export function ReportForm({
         contact_phone: initialItem.contact_phone,
       };
     }
-    return INITIAL_VALUES;
+    return {
+      ...INITIAL_VALUES,
+      item_type: defaultType,
+    };
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -121,7 +128,6 @@ export function ReportForm({
   ) {
     const { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
-    // Clear the field error as soon as the user starts correcting it
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   }
 
@@ -149,7 +155,6 @@ export function ReportForm({
     setSubmitting(true);
 
     try {
-      // 1. Determine image URL
       let imageUrl: string | null = initialItem ? initialItem.image_url : null;
       if (imageFile) {
         imageUrl = await uploadItemImage(imageFile);
@@ -171,7 +176,6 @@ export function ReportForm({
         contact_phone: values.contact_phone.trim(),
       };
 
-      // 2. Perform DB operation
       if (isEdit && initialItem) {
         await updateItem(initialItem.id, payload);
         setToast({ message: "Item updated successfully!", type: "success" });
@@ -204,10 +208,71 @@ export function ReportForm({
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
         {/* ── Item Details section ── */}
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm flex flex-col gap-5">
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs flex flex-col gap-5">
           <h2 className="text-base font-semibold text-gray-900">
             Item Details
           </h2>
+
+          {/* Large Selectable Cards for Report Type */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700">
+              Report Type <span className="text-red-500">*</span>
+            </label>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Report Type">
+              {/* Card 1: Lost */}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={values.item_type === "Lost"}
+                onClick={() => {
+                  setValues((prev) => ({ ...prev, item_type: "Lost" }));
+                  setErrors((prev) => ({ ...prev, item_type: undefined }));
+                }}
+                className={[
+                  "flex items-start gap-3 rounded-2xl border p-4 text-left transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400",
+                  values.item_type === "Lost"
+                    ? "border-rose-500 bg-rose-50/70 shadow-xs ring-1 ring-rose-500"
+                    : "border-gray-200 bg-gray-50/50 hover:bg-gray-100/60 hover:border-gray-300",
+                ].join(" ")}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600 font-bold text-sm">
+                  🟥
+                </span>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">Lost Item</div>
+                  <p className="mt-0.5 text-xs text-gray-500">I lost a personal item on campus</p>
+                </div>
+              </button>
+
+              {/* Card 2: Found */}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={values.item_type === "Found"}
+                onClick={() => {
+                  setValues((prev) => ({ ...prev, item_type: "Found" }));
+                  setErrors((prev) => ({ ...prev, item_type: undefined }));
+                }}
+                className={[
+                  "flex items-start gap-3 rounded-2xl border p-4 text-left transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400",
+                  values.item_type === "Found"
+                    ? "border-emerald-500 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500"
+                    : "border-gray-200 bg-gray-50/50 hover:bg-gray-100/60 hover:border-gray-300",
+                ].join(" ")}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 font-bold text-sm">
+                  🟩
+                </span>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">Found Item</div>
+                  <p className="mt-0.5 text-xs text-gray-500">I found an item left behind</p>
+                </div>
+              </button>
+            </div>
+            {errors.item_type && (
+              <p className="text-xs text-red-500">{errors.item_type}</p>
+            )}
+          </div>
 
           <FormField
             label="Item Name"
@@ -220,7 +285,7 @@ export function ReportForm({
               name="title"
               value={values.title}
               onChange={handleChange}
-              placeholder="e.g. Black leather wallet"
+              placeholder="e.g. Black leather wallet, Apple AirPods..."
               hasError={!!errors.title}
               maxLength={120}
             />
@@ -237,49 +302,31 @@ export function ReportForm({
               name="description"
               value={values.description}
               onChange={handleChange}
-              placeholder="Describe the item — colour, brand, any identifying marks…"
+              placeholder="Describe the item — colour, brand, keychains, scratches..."
               rows={4}
               hasError={!!errors.description}
               maxLength={500}
             />
           </FormField>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <FormField
-              label="Lost or Found?"
-              htmlFor="item_type"
-              error={errors.item_type}
-              required
-            >
-              <Select
-                id="item_type"
-                name="item_type"
-                value={values.item_type}
-                onChange={handleChange}
-                placeholder="Select type"
-                options={["Lost", "Found"]}
-                hasError={!!errors.item_type}
-              />
-            </FormField>
-
-            <FormField
-              label="Category"
-              htmlFor="category"
-              error={errors.category}
-              required
-            >
-              <Select
-                id="category"
-                name="category"
-                value={values.category}
-                onChange={handleChange}
-                placeholder="Select category"
-                options={CATEGORIES}
-                hasError={!!errors.category}
-              />
-            </FormField>
-          </div>
+          <FormField
+            label="Category"
+            htmlFor="category"
+            error={errors.category}
+            required
+          >
+            <Select
+              id="category"
+              name="category"
+              value={values.category}
+              onChange={handleChange}
+              placeholder="Select category"
+              options={CATEGORIES}
+              hasError={!!errors.category}
+            />
+          </FormField>
         </section>
+
 
         {/* ── Location & Date section ── */}
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm flex flex-col gap-5">
