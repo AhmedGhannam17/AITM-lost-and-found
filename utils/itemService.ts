@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { NewItemPayload } from "@/types/item";
+import type { Item, NewItemPayload } from "@/types/item";
 
 const STORAGE_BUCKET = "item-images";
 
@@ -38,4 +38,38 @@ export async function insertItem(payload: NewItemPayload): Promise<string> {
   if (error) throw new Error(`Failed to save item: ${error.message}`);
 
   return data.id as string;
+}
+
+/**
+ * Fetches all Open items, newest first.
+ */
+export async function fetchAllOpenItems(): Promise<Item[]> {
+  const { data, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("status", "Open")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(`Failed to fetch items: ${error.message}`);
+
+  return (data ?? []) as Item[];
+}
+
+/**
+ * Fetches a single item by its id.
+ * Returns null if not found.
+ */
+export async function fetchItemById(id: string): Promise<Item | null> {
+  const { data, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") return null; // not found
+    throw new Error(`Failed to fetch item: ${error.message}`);
+  }
+
+  return data as Item;
 }

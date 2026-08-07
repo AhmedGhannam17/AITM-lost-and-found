@@ -2,22 +2,22 @@
 
 ## Core Features
 
-- Report Lost Item
-- Report Found Item
-- Upload Image
-- Browse All Items
-- Search Items
-- Filter by Category
-- Filter by Status
-- Filter by Lost/Found
-- View Item Details
+- Report Lost Item (done)
+- Report Found Item (done)
+- Upload Image (done)
+- Browse All Items (done)
+- Search Items (done)
+- Filter by Category (done)
+- Filter by Status (done)
+- Filter by Lost/Found (done)
+- View Item Details (done)
 - Edit Item
 - Delete Item
 - Mark Item as Claimed
 
 ## Nice to Have
 
-- Empty States
+- Empty States (done)
 - Loading Skeletons
 - Toast Notifications
 - Dark Mode
