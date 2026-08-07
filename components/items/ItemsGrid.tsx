@@ -111,26 +111,27 @@ export function ItemsGrid() {
             {/* Card 1: Lost Item */}
             <Link
               href="/report?type=Lost"
-              className="group relative flex flex-col justify-between rounded-2xl border border-rose-200/80 bg-gradient-to-br from-rose-500 to-red-600 p-6 text-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:from-rose-600 hover:to-red-700 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+              className="group relative flex items-center gap-3 rounded-2xl border border-rose-200/80 bg-gradient-to-br from-rose-500 to-red-600 p-4 text-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:from-rose-600 hover:to-red-700 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 sm:p-6"
             >
-              <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xs text-xl">
-                  🟥
-                </span>
-                <svg
-                  className="h-5 w-5 opacity-70 transition-transform group-hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </div>
-              <div className="mt-4">
-                <h2 className="text-xl font-bold">I Lost Something</h2>
-                <p className="mt-1 text-xs text-rose-100 leading-relaxed">
-                  Lost an item on campus? Report it here with location and date to get help finding it.
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-lg backdrop-blur-xs sm:h-10 sm:w-10 sm:text-xl">
+                🟥
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-base font-bold leading-tight sm:text-xl">I Lost Something</h2>
+                  <svg
+                    className="h-4 w-4 shrink-0 opacity-70 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+                <p className="mt-1 text-[10px] leading-relaxed text-rose-100 sm:text-xs">
+                  Report a missing item on campus.
                 </p>
               </div>
             </Link>
@@ -138,26 +139,27 @@ export function ItemsGrid() {
             {/* Card 2: Found Item */}
             <Link
               href="/report?type=Found"
-              className="group relative flex flex-col justify-between rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:from-emerald-600 hover:to-teal-700 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              className="group relative flex items-center gap-3 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-500 to-teal-600 p-4 text-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:from-emerald-600 hover:to-teal-700 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:p-6"
             >
-              <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xs text-xl">
-                  🟩
-                </span>
-                <svg
-                  className="h-5 w-5 opacity-70 transition-transform group-hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </div>
-              <div className="mt-4">
-                <h2 className="text-xl font-bold">I Found Something</h2>
-                <p className="mt-1 text-xs text-emerald-100 leading-relaxed">
-                  Found something left behind? Post details so the owner can contact you and claim it.
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-lg backdrop-blur-xs sm:h-10 sm:w-10 sm:text-xl">
+                🟩
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-base font-bold leading-tight sm:text-xl">I Found Something</h2>
+                  <svg
+                    className="h-4 w-4 shrink-0 opacity-70 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+                <p className="mt-1 text-[10px] leading-relaxed text-emerald-100 sm:text-xs">
+                  Share a found item so it can be returned.
                 </p>
               </div>
             </Link>
@@ -168,7 +170,10 @@ export function ItemsGrid() {
 
 
       {/* ── 3. Filters & Search Section ── */}
-      <ItemsFilter filters={filters} onChange={setFilters} />
+      <div id="items" className="scroll-mt-24">
+        <ItemsFilter filters={filters} onChange={setFilters} />
+      </div>
+
 
       {/* Error State */}
       {error && (

@@ -15,13 +15,14 @@ interface ItemActionsProps {
 
 /**
  * Action toolbar for the Item Details page.
- * Provides Edit, Mark as Claimed, and Delete with confirmation modals and toast feedback.
+ * Provides Edit, Mark as Claimed, and Delete with confirmation modals, prototype notice tooltip, and toast feedback.
  */
 export function ItemActions({ item }: ItemActionsProps) {
   const router = useRouter();
 
   const [showClaimDialog, setShowClaimDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [toast, setToast] = useState<{
@@ -154,6 +155,55 @@ export function ItemActions({ item }: ItemActionsProps) {
           </svg>
           Delete
         </Button>
+
+        {/* Prototype Info Tooltip Icon */}
+        <div className="relative inline-block ml-1">
+          <button
+            type="button"
+            onClick={() => setShowTooltip((prev) => !prev)}
+            onMouseEnter={() => setShowTooltip(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            aria-label="Prototype Action Notice"
+            title="Prototype action information"
+          >
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
+
+          {showTooltip && (
+            <div className="absolute right-0 top-11 z-30 w-72 sm:w-80 rounded-2xl border border-gray-200 bg-white p-4 shadow-xl text-xs text-gray-700 animate-fade-in">
+              <div className="flex items-center justify-between font-bold text-gray-900 border-b border-gray-100 pb-2 mb-2">
+                <span>Prototype Notice</span>
+                <button
+                  type="button"
+                  onClick={() => setShowTooltip(false)}
+                  className="text-gray-400 hover:text-gray-600 p-1 rounded-md"
+                  aria-label="Dismiss notice"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="leading-relaxed">
+                These actions are currently visible to everyone because authentication has not yet been implemented.
+              </p>
+              <p className="mt-1.5 leading-relaxed text-gray-500">
+                In the production version, these actions will only be available to the original owner of the report after logging in.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Claim Confirmation Dialog */}
@@ -184,3 +234,4 @@ export function ItemActions({ item }: ItemActionsProps) {
     </>
   );
 }
+
