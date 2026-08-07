@@ -60,6 +60,14 @@ export async function fetchAllOpenItems(): Promise<Item[]> {
  * Returns null if not found.
  */
 export async function fetchItemById(id: string): Promise<Item | null> {
+  // Validate UUID before querying Supabase
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  if (!uuidRegex.test(id)) {
+    return null;
+  }
+
   const { data, error } = await supabase
     .from("items")
     .select("*")
@@ -67,9 +75,55 @@ export async function fetchItemById(id: string): Promise<Item | null> {
     .single();
 
   if (error) {
-    if (error.code === "PGRST116") return null; // not found
+    if (error.code === "PGRST116") return null;
     throw new Error(`Failed to fetch item: ${error.message}`);
   }
 
   return data as Item;
 }
+
+/**
+ * Updates an existing item row in the items table.
+ */
+export async function updateItem(
+  id: string,
+  payload: Partial<NewItemPayload>
+): Promise<void> {
+  const { error } = await supabase
+    .from("items")
+    .update({
+      ...payload,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(`Failed to update item: ${error.message}`);
+}
+
+/**
+ * Deletes an item row from the items table by id.
+ */
+export async function deleteItem(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("items")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw new Error(`Failed to delete item: ${error.message}`);
+}
+
+/**
+ * Updates an item's status to "Claimed".
+ */
+export async function markItemClaimed(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("items")
+    .update({
+      status: "Claimed",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(`Failed to mark item as claimed: ${error.message}`);
+}
+

@@ -4,7 +4,8 @@ import React, { useRef, useState } from "react";
 import Image from "next/image";
 
 interface ImageUploaderProps {
-  onFileSelect: (file: File | null) => void;
+  onFileSelect: (file: File | null, isRemoved?: boolean) => void;
+  initialImageUrl?: string | null;
   error?: string;
 }
 
@@ -12,26 +13,30 @@ interface ImageUploaderProps {
  * Drag-and-drop / click-to-browse image upload zone.
  * Previews the selected image and lets the user remove it.
  */
-export function ImageUploader({ onFileSelect, error }: ImageUploaderProps) {
+export function ImageUploader({
+  onFileSelect,
+  initialImageUrl = null,
+  error,
+}: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(initialImageUrl ?? null);
   const [isDragging, setIsDragging] = useState(false);
 
   function handleFile(file: File | null) {
     if (!file) {
       setPreview(null);
-      onFileSelect(null);
+      onFileSelect(null, true);
       return;
     }
 
     if (!file.type.startsWith("image/")) {
-      onFileSelect(null);
+      onFileSelect(null, false);
       return;
     }
 
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
-    onFileSelect(file);
+    onFileSelect(file, false);
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -46,7 +51,7 @@ export function ImageUploader({ onFileSelect, error }: ImageUploaderProps) {
 
   function handleRemove() {
     setPreview(null);
-    onFileSelect(null);
+    onFileSelect(null, true);
     if (inputRef.current) inputRef.current.value = "";
   }
 

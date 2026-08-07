@@ -5,6 +5,7 @@ import Link from "next/link";
 import { fetchItemById } from "@/utils/itemService";
 import { ItemTypeBadge, StatusBadge } from "@/components/ui/Badge";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ItemActions } from "@/components/items/ItemActions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 /**
  * /item/[id] — item detail page.
- * Read-only view of a single item's full information.
+ * View of a single item's full information with action buttons (Edit, Claim, Delete).
  */
 export default async function ItemDetailPage({ params }: PageProps) {
   const { id } = await params;
@@ -66,10 +67,13 @@ export default async function ItemDetailPage({ params }: PageProps) {
           </div>
         )}
 
-        {/* ── Badges ── */}
-        <div className="flex flex-wrap gap-2">
-          <ItemTypeBadge type={item.item_type} />
-          <StatusBadge status={item.status} />
+        {/* ── Badges & Actions ── */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            <ItemTypeBadge type={item.item_type} />
+            <StatusBadge status={item.status} />
+          </div>
+          <ItemActions item={item} />
         </div>
 
         {/* ── Detail sections ── */}

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 
 import { CATEGORIES } from "@/constants/categories";
 import { CAMPUS_AREAS } from "@/constants/campusAreas";
-import type { ItemType } from "@/types/item";
-import { uploadItemImage, insertItem } from "@/utils/itemService";
+import type { Item, ItemType } from "@/types/item";
+import { uploadItemImage, insertItem, updateItem } from "@/utils/itemService";
 
 import { FormField } from "@/components/ui/FormField";
 import { Input } from "@/components/ui/Input";
@@ -68,18 +68,44 @@ const INITIAL_VALUES: FormValues = {
   contact_phone: "",
 };
 
+interface ReportFormProps {
+  initialItem?: Item;
+  mode?: "create" | "edit";
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 /**
- * Full report form — handles validation, image upload, DB insert,
- * success toast, and redirect to homepage.
+ * Reusable report form — handles validation, image upload, DB insert/update,
+ * success toast, and redirect. Supports both create and edit modes.
  */
-export function ReportForm() {
+export function ReportForm({
+  initialItem,
+  mode = initialItem ? "edit" : "create",
+}: ReportFormProps) {
   const router = useRouter();
+  const isEdit = mode === "edit";
 
-  const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
+  const [values, setValues] = useState<FormValues>(() => {
+    if (initialItem) {
+      return {
+        title: initialItem.title,
+        description: initialItem.description,
+        item_type: initialItem.item_type,
+        category: initialItem.category,
+        campus_area: initialItem.campus_area,
+        specific_location: initialItem.specific_location,
+        event_date: initialItem.event_date,
+        contact_name: initialItem.contact_name,
+        contact_phone: initialItem.contact_phone,
+      };
+    }
+    return INITIAL_VALUES;
+  });
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -99,9 +125,15 @@ export function ReportForm() {
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   }
 
-  const handleImageSelect = useCallback((file: File | null) => {
-    setImageFile(file);
-  }, []);
+  const handleImageSelect = useCallback(
+    (file: File | null, isRemoved?: boolean) => {
+      setImageFile(file);
+      if (isRemoved !== undefined) {
+        setImageRemoved(isRemoved);
+      }
+    },
+    []
+  );
 
   // ── Submit ───────────────────────────────────────────────────────────────
 
@@ -117,14 +149,15 @@ export function ReportForm() {
     setSubmitting(true);
 
     try {
-      // 1. Upload image (if any) and get public URL
-      let imageUrl: string | null = null;
+      // 1. Determine image URL
+      let imageUrl: string | null = initialItem ? initialItem.image_url : null;
       if (imageFile) {
         imageUrl = await uploadItemImage(imageFile);
+      } else if (imageRemoved) {
+        imageUrl = null;
       }
 
-      // 2. Insert into database
-      await insertItem({
+      const payload = {
         title: values.title.trim(),
         description: values.description.trim(),
         item_type: values.item_type as ItemType,
@@ -132,16 +165,22 @@ export function ReportForm() {
         campus_area: values.campus_area,
         specific_location: values.specific_location.trim(),
         event_date: values.event_date,
-        status: "Open",
+        status: initialItem ? initialItem.status : ("Open" as const),
         image_url: imageUrl,
         contact_name: values.contact_name.trim(),
         contact_phone: values.contact_phone.trim(),
-      });
+      };
 
-      setToast({ message: "Your item has been reported successfully!", type: "success" });
-
-      // Redirect after toast is visible
-      setTimeout(() => router.push("/"), 2000);
+      // 2. Perform DB operation
+      if (isEdit && initialItem) {
+        await updateItem(initialItem.id, payload);
+        setToast({ message: "Item updated successfully!", type: "success" });
+        setTimeout(() => router.push(`/item/${initialItem.id}`), 1500);
+      } else {
+        await insertItem(payload);
+        setToast({ message: "Your item has been reported successfully!", type: "success" });
+        setTimeout(() => router.push("/"), 2000);
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong.";
@@ -349,7 +388,10 @@ export function ReportForm() {
         {/* ── Photo section ── */}
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="mb-5 text-base font-semibold text-gray-900">Photo</h2>
-          <ImageUploader onFileSelect={handleImageSelect} />
+          <ImageUploader
+            onFileSelect={handleImageSelect}
+            initialImageUrl={initialItem?.image_url}
+          />
         </section>
 
         {/* ── Actions ── */}
@@ -363,10 +405,17 @@ export function ReportForm() {
             Cancel
           </Button>
           <Button type="submit" loading={submitting} disabled={submitting}>
-            {submitting ? "Submitting…" : "Submit Report"}
+            {submitting
+              ? isEdit
+                ? "Updating…"
+                : "Submitting…"
+              : isEdit
+              ? "Update Item"
+              : "Submit Report"}
           </Button>
         </div>
       </form>
     </>
   );
 }
+
