@@ -41,11 +41,11 @@ export function PageHeader({
           {backLabel}
         </Link>
       )}
-      <h1 className="pl-1.5 text-2xl font-bold tracking-tight">
+      <h1 className="pl-1.5 text-2xl font-bold tracking-tight white">
         {title}
       </h1>
       {description && (
-        <p className="mt-1.5 text-sm text-gray-500">{description}</p>
+        <p className="mt-1.5 text-sm text-gray-500 white">{description}</p>
       )}
     </div>
   );
